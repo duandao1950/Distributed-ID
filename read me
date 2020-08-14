@@ -1,0 +1,73 @@
+Distributed ID
+#################################################################
+
+snowflake
+https://github.com/twitter-archive/snowflake
+#################################################################
+
+leaf 美团分布式 ID 生成服务
+https://github.com/Meituan-Dianping/Leaf
+
+Leaf：美团的分布式唯一ID方案深入剖析
+https://www.jianshu.com/p/bd6b00e5f5ac
+
+对 leaf 进行手动版、引入版、官方版 进行测试
+手动版: 将有用的源码分拣出来，方便自行扩展
+引入版: 依赖 leaf-core-1.0.1.jar maven 仓库找不到， 从 git clone 代码，编译生成，适合 RPC 调用
+官方版：按操作文档，启动源码开箱即用，注意：里面的版本小于 Spring boot 2.0，如果要在 2.0版本中使用，参考 手动版、引入版
+
+Segment 模式有时钟回拨问题吗？很明显没有，因为通过这种模式获取的ID没有任何时间属性，所以不存在时钟回拨问题。
+
+Snowflake 模式 leaf 的 Snowflake 模式并没有彻底解决时钟回拨的问题。当运行过程中，如果时钟回拨超过5ms，依然会抛出异常。
+
+#################################################################
+
+Snowflake 模式 依赖 zookeeper
+zookeeper 可视化工具 ZooInspector
+
+下载 安装
+zookeeper图形化的客户端工具(ZooInspector)
+https://www.cnblogs.com/weiyiming007/p/11951591.html
+#################################################################
+
+百度
+https://github.com/baidu/uid-generator
+
+UidGenerator：百度开源的分布式 ID 服务（解决了时钟回拨问题）
+https://mp.weixin.qq.com/s/8NsTXexf03wrT0tsW24EHA
+
+时间递增：传统的雪花算法实现都是通过System.currentTimeMillis()来获取时间并与上一次时间进行比较，
+这样的实现严重依赖服务器的时间。而UidGenerator的时间类型是AtomicLong，且通过incrementAndGet()方法获取下一次的时间，从而脱离了对服务器时间的依赖，也就不会有时钟回拨的问题
+（这种做法也有一个小问题，即分布式ID中的时间信息可能并不是这个ID真正产生的时间点，例如：获取的某分布式ID的值为3200169789968523265，它的反解析结果为{"timestamp":"2019-05-02 23:26:39","workerId":"21","sequence":"1"}，但是这个ID可能并不是在"2019-05-02 23:26:39"这个时间产生的）。
+
+#################################################################
+对比
+
+终极版：分布式唯一 ID 的几种生成方案
+https://www.jianshu.com/p/4ba1c5e8c185
+#################################################################
+Apache ab
+
+如何在 windows 机器上安装 apache ab
+https://blog.csdn.net/qq_26565861/article/details/81198303
+
+压测 官方版 leaf-snowflake
+abs -n 100 -c 10 "http://localhost:8080/api/snowflake/get/test"
+abs -n 1000 -c 20 "http://localhost:8080/api/snowflake/get/test"
+
+常用选项
+-n 要执行的请求数量(number)
+-c 同时并发(Concurrency)的请求数量
+-s 等待每个响应的超时市场，单位为秒(Second)，默认为30s。
+实例
+模拟500次请求，同时并发请求最大为20，访问URL为http://localhost:8080/web01/index.jsp
+ab -n 500 -c 20 http://localhost:8080/web01/index.jsp
+所有选项
+执行 ab -h，即可查看help信息。
+
+Apache ab性能测试结果分析
+https://www.cnblogs.com/ddzfeng/p/12198523.html
+
+#################################################################
+
+
